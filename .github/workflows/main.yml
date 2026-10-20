@@ -7,7 +7,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Unzip project
-        run: unzip -q Meshly-Scan-Test-Updated.zip
+        run: |
+          unzip -q Meshly-Scan-Test-Updated.zip
+          sed -i 's/minSdkVersion rootProject.ext.minSdkVersion/minSdkVersion 26/' meshly-scan-test/android/app/build.gradle
+          grep -n "minSdkVersion" meshly-scan-test/android/app/build.gradle
       - name: Fix module version
         run: |
           sed -i "s/minSdkVersion 26/minSdkVersion 26\n    versionCode 1\n    versionName '1.0.0'/" meshly-scan-test/modules/meshly-connectivity/android/build.gradle
