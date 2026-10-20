@@ -11,7 +11,14 @@ jobs:
       - name: Fix module version
         run: |
           sed -i "s/minSdkVersion 26/minSdkVersion 26\n    versionCode 1\n    versionName '1.0.0'/" meshly-scan-test/modules/meshly-connectivity/android/build.gradle
-          cat meshly-scan-test/modules/meshly-connectivity/android/build.gradle
+      - name: Fix Kotlin code
+        working-directory: meshly-scan-test/modules/meshly-connectivity/android/src/main/java/com/rearena/meshly/connectivity
+        run: |
+          sed -i 's/^import com.google.crypto.tink.AndroidKeysetManager$/import com.google.crypto.tink.integration.android.AndroidKeysetManager/' MeshlyCryptoManager.kt
+          sed -i 's/^import android.security.keystore.KeyProperties$/import android.security.keystore.KeyProperties\nimport android.util.Base64/' MeshlyCryptoManager.kt
+          sed -i 's/HybridKeyTemplates.ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM,/com.google.crypto.tink.KeyTemplates.get("ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM"),/' MeshlyCryptoManager.kt
+          sed -i 's/SignatureKeyTemplates.ECDSA_P256)/com.google.crypto.tink.KeyTemplates.get("ECDSA_P256"))/' MeshlyCryptoManager.kt
+          sed -i '/private fun createPeerConnection/,/peerConnection = connection/ s/^    val connection =$/    lateinit var connection: MeshlyPeerConnection\n    connection =/' MeshlyConnectivityModule.kt
       - uses: actions/setup-node@v4
         with:
           node-version: 22
